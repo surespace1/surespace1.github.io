@@ -1,167 +1,245 @@
-(function ($) {
-  "use strict";
+/* global Fluid, CONFIG */
 
-  ZHAOO.utils = {
-    debounce: function (func, wait, immediate) {
-      var timeout;
-      return function () {
-        var context = this;
-        var args = arguments;
-        timeout && clearTimeout(timeout);
-        if (immediate) {
-          var callNow = !timeout;
-          timeout = setTimeout(function () {
-            timeout = null;
-          }, wait);
-          if (callNow) func.apply(context, args);
+window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
+
+Fluid.utils = {
+
+  listenScroll: function(callback) {
+    var dbc = new Debouncer(callback);
+    window.addEventListener('scroll', dbc, false);
+    dbc.handleEvent();
+    return dbc;
+  },
+
+  unlistenScroll: function(callback) {
+    window.removeEventListener('scroll', callback);
+  },
+
+  listenDOMLoaded(callback) {
+    if (document.readyState !== 'loading') {
+      callback();
+    } else {
+      document.addEventListener('DOMContentLoaded', function () {
+        callback();
+      });
+    }
+  },
+
+  scrollToElement: function(target, offset) {
+    var of = jQuery(target).offset();
+    if (of) {
+      jQuery('html,body').animate({
+        scrollTop: of.top + (offset || 0),
+        easing   : 'swing'
+      });
+    }
+  },
+
+  elementVisible: function(element, offsetFactor) {
+    offsetFactor = offsetFactor && offsetFactor >= 0 ? offsetFactor : 0;
+    var rect = element.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    return (
+      (rect.top >= 0 && rect.top <= viewportHeight * (1 + offsetFactor) + rect.height / 2) ||
+      (rect.bottom >= 0 && rect.bottom <= viewportHeight * (1 + offsetFactor) + rect.height / 2)
+    );
+  },
+
+  waitElementVisible: function(selectorOrElement, callback, offsetFactor) {
+    var runningOnBrowser = typeof window !== 'undefined';
+    var isBot = (runningOnBrowser && !('onscroll' in window))
+      || (typeof navigator !== 'undefined' && /(gle|ing|ro|msn)bot|crawl|spider|yand|duckgo/i.test(navigator.userAgent));
+    if (!runningOnBrowser || isBot) {
+      return;
+    }
+
+    offsetFactor = offsetFactor && offsetFactor >= 0 ? offsetFactor : 0;
+
+    function waitInViewport(element) {
+      Fluid.utils.listenDOMLoaded(function() {
+        if (Fluid.utils.elementVisible(element, offsetFactor)) {
+          callback();
+          return;
+        }
+        if ('IntersectionObserver' in window) {
+          var io = new IntersectionObserver(function(entries, ob) {
+            if (entries[0].isIntersecting) {
+              callback();
+              ob.disconnect();
+            }
+          }, {
+            threshold : [0],
+            rootMargin: (window.innerHeight || document.documentElement.clientHeight) * offsetFactor + 'px'
+          });
+          io.observe(element);
         } else {
-          timeout = setTimeout(function () {
-            func.apply(context, args);
-          }, wait);
-        }
-      }
-    },
-    throttle: function (func, wait, options) {
-      var timeout, context, args;
-      var previous = 0;
-      if (!options) options = {};
-      var later = function () {
-        previous = options.leading === false ? 0 : new Date().getTime();
-        timeout = null;
-        func.apply(context, args);
-        if (!timeout) context = args = null;
-      }
-      var throttled = function () {
-        var now = new Date().getTime();
-        if (!previous && options.leading === false) previous = now;
-        var remaining = wait - (now - previous);
-        context = this;
-        args = arguments;
-        if (remaining <= 0 || remaining > wait) {
-          if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-          }
-          previous = now;
-          func.apply(context, args);
-          if (!timeout) context = args = null;
-        } else if (!timeout && options.trailing !== false) {
-          timeout = setTimeout(later, remaining);
-        }
-      }
-      return throttled;
-    },
-    hasMobileUA: function () {
-      var nav = window.navigator;
-      var ua = nav.userAgent;
-      var pa = /iPad|iPhone|Android|Opera Mini|BlackBerry|webOS|UCWEB|Blazer|PSP|IEMobile|Symbian/g;
-      return pa.test(ua);
-    },
-    isTablet: function () {
-      return (
-        window.screen.width > 767 &&
-        window.screen.width < 992 &&
-        this.hasMobileUA()
-      );
-    },
-    isMobile: function () {
-      return window.screen.width < 767 && this.hasMobileUA();
-    },
-    isDesktop: function () {
-      return !this.isTablet() && !this.isMobile();
-    },
-    isDuringDate: function (beginDateStr, endDateStr) {
-      var curDate = new Date(),
-        beginDate = new Date(beginDateStr),
-        endDate = new Date(endDateStr);
-      if (curDate >= beginDate && curDate <= endDate) {
-        return true;
-      }
-      return false;
-    },
-    bindKeyup: function (code, fn) {
-      $(document).keyup(function (e) {
-        var key = e.which || e.keyCode;;
-        if (key == code) {
-          fn();
+          var wrapper = Fluid.utils.listenScroll(function() {
+            if (Fluid.utils.elementVisible(element, offsetFactor)) {
+              Fluid.utils.unlistenScroll(wrapper);
+              callback();
+            }
+          });
         }
       });
     }
-  }
 
-  ZHAOO.zui = {
-    message: function ({ text, type, delay }) {
-      var message = '<div class="zui-message ' + (type || "info") + '"><p>' + text + '</p></div>';
-      $("body").append(message);
-      var e = $(".zui-message");
-      e.ready(function () {
-        e.addClass("in");
-        setTimeout(function () {
-          e.removeClass("in");
-          e.on("transitionend webkitTransitionEnd", function () {
-            $(this).remove();
-          });
-        }, delay || 3000);
+    if (typeof selectorOrElement === 'string') {
+      this.waitElementLoaded(selectorOrElement, function(element) {
+        waitInViewport(element);
       });
-    },
-    notification: function ({ title, content, type, delay }) {
-      var storage = JSON.parse(localStorage.getItem("notification-closed"));
-      if (storage && storage.indexOf(title) >= 0) return;
-      var notification = '<div class="zui-notification ' + (type || "info") + '"><span>' + title + '</span><p>' + content + '</p><i class="j-notification-close iconfont iconbaseline-close-px"></i></div>';
-      $("body").append(notification);
-      var e = $(".zui-notification");
-      var close = $(".j-notification-close");
-      e.ready(function () {
-        e.addClass("in");
-        setTimeout(function () {
-          e.removeClass("in");
-          e.on("transitionend webkitTransitionEnd", function () {
-            $(this).remove();
-          });
-        }, delay || 3000);
-        close.on("click", function () {
-          e.removeClass("in");
-          if (storage) {
-            (storage.indexOf(title) < 0) && localStorage.setItem("notification-closed", JSON.stringify(storage.concat(title)));
+    } else {
+      waitInViewport(selectorOrElement);
+    }
+  },
+
+  waitElementLoaded: function(selector, callback) {
+    var runningOnBrowser = typeof window !== 'undefined';
+    var isBot = (runningOnBrowser && !('onscroll' in window))
+      || (typeof navigator !== 'undefined' && /(gle|ing|ro|msn)bot|crawl|spider|yand|duckgo/i.test(navigator.userAgent));
+    if (!runningOnBrowser || isBot) {
+      return;
+    }
+
+    if ('MutationObserver' in window) {
+      var mo = new MutationObserver(function(records, ob) {
+        var ele = document.querySelector(selector);
+        if (ele) {
+          callback(ele);
+          ob.disconnect();
+        }
+      });
+      mo.observe(document, { childList: true, subtree: true });
+    } else {
+      Fluid.utils.listenDOMLoaded(function() {
+        var waitLoop = function() {
+          var ele = document.querySelector(selector);
+          if (ele) {
+            callback(ele);
           } else {
-            localStorage.setItem("notification-closed", JSON.stringify([title]));
+            setTimeout(waitLoop, 100);
           }
-        });
+        };
+        waitLoop();
       });
     }
-  }
+  },
 
-})(jQuery);
-
-class AsyncLimit {
-  constructor(limit) {
-    this.limit = Number(limit) || 2;
-    this.pool = [];
-    this.current = 0;
-  }
-
-  async run(fn) {
-    if (!fn || typeof fn !== 'function') {
-      throw new Error('Function error.');
-    }
-    if (this.current >= this.limit) {
-      await new Promise(resolve => this.pool.push(resolve));
-    }
-    return this._handleRun(fn);
-  }
-
-  async _handleRun(fn) {
-    this.current++;
-    try {
-      return await fn();
-    } catch (err) {
-      return Promise.reject(err);
-    } finally {
-      this.current--;
-      if (this.pool.length) {
-        this.pool[0]();
-        this.pool.shift();
+  createScript: function(url, onload) {
+    var s = document.createElement('script');
+    s.setAttribute('src', url);
+    s.setAttribute('type', 'text/javascript');
+    s.setAttribute('charset', 'UTF-8');
+    s.async = false;
+    if (typeof onload === 'function') {
+      if (window.attachEvent) {
+        s.onreadystatechange = function() {
+          var e = s.readyState;
+          if (e === 'loaded' || e === 'complete') {
+            s.onreadystatechange = null;
+            onload();
+          }
+        };
+      } else {
+        s.onload = onload;
       }
     }
+    var ss = document.getElementsByTagName('script');
+    var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+    e.parentNode.insertBefore(s, e.nextSibling);
+  },
+
+  createCssLink: function(url) {
+    var l = document.createElement('link');
+    l.setAttribute('rel', 'stylesheet');
+    l.setAttribute('type', 'text/css');
+    l.setAttribute('href', url);
+    var e = document.getElementsByTagName('link')[0]
+      || document.getElementsByTagName('head')[0]
+      || document.head || document.documentElement;
+    e.parentNode.insertBefore(l, e);
+  },
+
+  loadComments: function(selector, loadFunc) {
+    var ele = document.querySelector('#comments[lazyload]');
+    if (ele) {
+      var callback = function() {
+        loadFunc();
+        ele.removeAttribute('lazyload');
+      };
+      Fluid.utils.waitElementVisible(selector, callback, CONFIG.lazyload.offset_factor);
+    } else {
+      loadFunc();
+    }
+  },
+
+  getBackgroundLightness(selectorOrElement) {
+    var ele = selectorOrElement;
+    if (typeof selectorOrElement === 'string') {
+      ele = document.querySelector(selectorOrElement);
+    }
+    var view = ele.ownerDocument.defaultView;
+    if (!view) {
+      view = window;
+    }
+    var rgbArr = view.getComputedStyle(ele).backgroundColor.replace(/rgba*\(/, '').replace(')', '').split(/,\s*/);
+    if (rgbArr.length < 3) {
+      return 0;
+    }
+    var colorCast = (0.213 * rgbArr[0]) + (0.715 * rgbArr[1]) + (0.072 * rgbArr[2]);
+    return colorCast === 0 || colorCast > 255 / 2 ? 1 : -1;
+  },
+
+  retry(handler, interval, times) {
+    if (times <= 0) {
+      return;
+    }
+    var next = function() {
+      if (--times >= 0 && !handler()) {
+        setTimeout(next, interval);
+      }
+    };
+    setTimeout(next, interval);
   }
+
+};
+
+/**
+ * Handles debouncing of events via requestAnimationFrame
+ * @see http://www.html5rocks.com/en/tutorials/speed/animations/
+ * @param {Function} callback The callback to handle whichever event
+ */
+function Debouncer(callback) {
+  this.callback = callback;
+  this.ticking = false;
 }
+
+Debouncer.prototype = {
+  constructor: Debouncer,
+
+  /**
+   * dispatches the event to the supplied callback
+   * @private
+   */
+  update: function() {
+    this.callback && this.callback();
+    this.ticking = false;
+  },
+
+  /**
+   * ensures events don't get stacked
+   * @private
+   */
+  requestTick: function() {
+    if (!this.ticking) {
+      requestAnimationFrame(this.rafCallback || (this.rafCallback = this.update.bind(this)));
+      this.ticking = true;
+    }
+  },
+
+  /**
+   * Attach this as the event listeners
+   */
+  handleEvent: function() {
+    this.requestTick();
+  }
+};
