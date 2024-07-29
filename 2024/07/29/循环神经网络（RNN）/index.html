@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+<html lang="zh_CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/dog.png">
+  <link rel="icon" href="/img/dog.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="suhang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="循环神经网络（RNN）的简单介绍，一个新手的笔记，后面会对其进行修改的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="循环神经网络">
+<meta property="og:url" content="http://example.com/2024/07/29/%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%EF%BC%88RNN%EF%BC%89/index.html">
+<meta property="og:site_name" content="surespace">
+<meta property="og:description" content="循环神经网络（RNN）的简单介绍，一个新手的笔记，后面会对其进行修改的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/2.jpg">
+<meta property="article:published_time" content="2024-07-29T02:53:52.000Z">
+<meta property="article:modified_time" content="2024-07-29T11:25:47.929Z">
+<meta property="article:author" content="suhang">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/2.jpg">
+  
+  
+  
+  <title>循环神经网络 - surespace</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.2.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sure</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>主页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>存档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>目录</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="循环神经网络"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-07-29 10:53" pubdate>
+          2024年7月29日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.2k 単語
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          10 分
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">循环神经网络</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="基础结构"><a href="#基础结构" class="headerlink" title="基础结构"></a>基础结构</h1><h2 id="计算过程"><a href="#计算过程" class="headerlink" title="计算过程"></a>计算过程</h2><p>​<img src="/assets/rnn/image-20240503154316-u9iie3c.png" srcset="/img/loading.gif" lazyload alt="image" title="RNN时间展开图">​</p>
+<p>$公式1：s_t&#x3D;f(U<em>x_t+W</em>s_{t-1})$</p>
+<p>隐藏层的计算公式，是循环层。U是输入x的权重矩阵，w是权重矩阵，f是激活函数</p>
+<p>$公式2：o_t&#x3D;g(V*s_t)$</p>
+<p>输出层的计算公式。v是输出层的权重矩阵，g是激活函数</p>
+<h1 id="BRNN（双向循环神经网络）"><a href="#BRNN（双向循环神经网络）" class="headerlink" title="BRNN（双向循环神经网络）"></a>BRNN（双向循环神经网络）</h1><p>​<img src="/assets/rnn/image-20240503160331-1eklkdn.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>$\mathrm{y}_2&#x3D;g(VA_2+V’A_2’)$</p>
+<p>$A_2&#x3D;f(WA_1+U\mathrm{x}_2)$</p>
+<p>$A_2’&#x3D;f(W’A_3’+U’\mathrm{x}_2)$</p>
+<p>正向计算时，隐藏层的值𝑆𝑡与𝑆𝑡−1有关；反向计算时，隐藏层的值𝑆𝑡′与𝑆𝑡+1′有关；最终的输出取决于正向和反向计算的加和</p>
+<p>正向计算和反向计算都不共享权重</p>
+<h1 id="LSTM（长短时记忆网络）"><a href="#LSTM（长短时记忆网络）" class="headerlink" title="LSTM（长短时记忆网络）"></a>LSTM（长短时记忆网络）</h1><p>遗忘门，记忆门，输出门</p>
+<h2 id="计算过程-1"><a href="#计算过程-1" class="headerlink" title="计算过程"></a>计算过程</h2><p>​<img src="/assets/rnn/image-20240503160836-39sjnyr.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>记忆单元状态的计算公式</p>
+<p>$公式1：c_{t}&#x3D;f_{t} \odot c_{t-1}+i_{t} \odot g_t $</p>
+<p>遗忘门：</p>
+<p>$f_t$称为遗忘门，表明$c_{t-1}$的哪些特征被记录从而计算$c_t$， 通常使用$sigmoid$函数作为激活函数</p>
+<p>$公式2：f_t&#x3D;\sigma (x_tW_x^{(f)}+h_{h-1}W_h^{(f)}+b^{(f)})$</p>
+<p>输入门：</p>
+<p>$\tilde{C}_t$是单元状态更新值，激活函数通常是$tanh$，$i_t $为输入门</p>
+<p>$公式3:：i_t&#x3D;\sigma (x_tW_x^{(i)}+h_{t-1}W_h^{i}+b^{(i)})$</p>
+<p>$公式4：g_t&#x3D;tanh(x_tW_x^{(g)}+h_{t-1}W_h^{(g)}+b^{(g)})$</p>
+<p>输出门：</p>
+<p>$公式5：o_t&#x3D;\sigma (x_tW_x^{(o)}+h_{t-1}W_h^{(o)}+b^{(o)})$</p>
+<p>$公式6：h_t&#x3D;o_t\odot tanh(c_t)$</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">import</span> torch<br><span class="hljs-keyword">from</span> torch <span class="hljs-keyword">import</span> nn<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br><br><span class="hljs-comment"># Define LSTM Neural Networks</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">LstmRNN</span>(nn.Module):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        Parameters：</span><br><span class="hljs-string">        - input_size: feature size</span><br><span class="hljs-string">        - hidden_size: number of hidden units</span><br><span class="hljs-string">        - output_size: number of output</span><br><span class="hljs-string">        - num_layers: layers of LSTM to stack</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, input_size, hidden_size=<span class="hljs-number">1</span>, output_size=<span class="hljs-number">1</span>, num_layers=<span class="hljs-number">1</span></span>):<br>        <span class="hljs-built_in">super</span>().__init__()<br><br>        self.lstm = nn.LSTM(input_size, hidden_size, num_layers)  <span class="hljs-comment"># utilize the LSTM model in torch.nn</span><br>        self.forwardCalculation = nn.Linear(hidden_size, output_size)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward</span>(<span class="hljs-params">self, _x</span>):<br>        x, _ = self.lstm(_x)  <span class="hljs-comment"># _x is input, size (seq_len, batch, input_size)</span><br>        s, b, h = x.shape  <span class="hljs-comment"># x is output, size (seq_len, batch, hidden_size)</span><br>        x = x.view(s * b, h)<br>        x = self.forwardCalculation(x)<br>        x = x.view(s, b, -<span class="hljs-number">1</span>)<br>        <span class="hljs-keyword">return</span> x<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    <span class="hljs-comment"># create database</span><br>    data_len = <span class="hljs-number">200</span><br>    t = np.linspace(<span class="hljs-number">0</span>, <span class="hljs-number">12</span> * np.pi, data_len)<br>    sin_t = np.sin(t)<br>    cos_t = np.cos(t)<br><br>    dataset = np.zeros((data_len, <span class="hljs-number">2</span>))<br>    dataset[:, <span class="hljs-number">0</span>] = sin_t<br>    dataset[:, <span class="hljs-number">1</span>] = cos_t<br>    dataset = dataset.astype(<span class="hljs-string">&#x27;float32&#x27;</span>)<br><br>    <span class="hljs-comment"># plot part of the original dataset</span><br>    plt.figure()<br>    plt.plot(t[<span class="hljs-number">0</span>:<span class="hljs-number">60</span>], dataset[<span class="hljs-number">0</span>:<span class="hljs-number">60</span>, <span class="hljs-number">0</span>], label=<span class="hljs-string">&#x27;sin(t)&#x27;</span>)<br>    plt.plot(t[<span class="hljs-number">0</span>:<span class="hljs-number">60</span>], dataset[<span class="hljs-number">0</span>:<span class="hljs-number">60</span>, <span class="hljs-number">1</span>], label=<span class="hljs-string">&#x27;cos(t)&#x27;</span>)<br>    plt.plot([<span class="hljs-number">2.5</span>, <span class="hljs-number">2.5</span>], [-<span class="hljs-number">1.3</span>, <span class="hljs-number">0.55</span>], <span class="hljs-string">&#x27;r--&#x27;</span>, label=<span class="hljs-string">&#x27;t = 2.5&#x27;</span>)  <span class="hljs-comment"># t = 2.5</span><br>    plt.plot([<span class="hljs-number">6.8</span>, <span class="hljs-number">6.8</span>], [-<span class="hljs-number">1.3</span>, <span class="hljs-number">0.85</span>], <span class="hljs-string">&#x27;m--&#x27;</span>, label=<span class="hljs-string">&#x27;t = 6.8&#x27;</span>)  <span class="hljs-comment"># t = 6.8</span><br>    plt.xlabel(<span class="hljs-string">&#x27;t&#x27;</span>)<br>    plt.ylim(-<span class="hljs-number">1.2</span>, <span class="hljs-number">1.2</span>)<br>    plt.ylabel(<span class="hljs-string">&#x27;sin(t) and cos(t)&#x27;</span>)<br>    plt.legend(loc=<span class="hljs-string">&#x27;upper right&#x27;</span>)<br><br>    <span class="hljs-comment"># choose dataset for training and testing</span><br>    train_data_ratio = <span class="hljs-number">0.5</span>  <span class="hljs-comment"># Choose 80% of the data for testing</span><br>    train_data_len = <span class="hljs-built_in">int</span>(data_len * train_data_ratio)<br>    train_x = dataset[:train_data_len, <span class="hljs-number">0</span>]<br>    train_y = dataset[:train_data_len, <span class="hljs-number">1</span>]<br>    INPUT_FEATURES_NUM = <span class="hljs-number">1</span><br>    OUTPUT_FEATURES_NUM = <span class="hljs-number">1</span><br>    t_for_training = t[:train_data_len]<br><br>    <span class="hljs-comment"># test_x = train_x</span><br>    <span class="hljs-comment"># test_y = train_y</span><br>    test_x = dataset[train_data_len:, <span class="hljs-number">0</span>]<br>    test_y = dataset[train_data_len:, <span class="hljs-number">1</span>]<br>    t_for_testing = t[train_data_len:]<br><br>    <span class="hljs-comment"># ----------------- train -------------------</span><br>    train_x_tensor = train_x.reshape(-<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, INPUT_FEATURES_NUM)  <span class="hljs-comment"># set batch size to 5</span><br>    train_y_tensor = train_y.reshape(-<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, OUTPUT_FEATURES_NUM)  <span class="hljs-comment"># set batch size to 5</span><br><br>    <span class="hljs-comment"># transfer data to pytorch tensor</span><br>    train_x_tensor = torch.from_numpy(train_x_tensor)<br>    train_y_tensor = torch.from_numpy(train_y_tensor)<br>    <span class="hljs-comment"># test_x_tensor = torch.from_numpy(test_x)</span><br><br>    lstm_model = LstmRNN(INPUT_FEATURES_NUM, <span class="hljs-number">16</span>, output_size=OUTPUT_FEATURES_NUM, num_layers=<span class="hljs-number">1</span>)  <span class="hljs-comment"># 16 hidden units</span><br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;LSTM model:&#x27;</span>, lstm_model)<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;model.parameters:&#x27;</span>, lstm_model.parameters)<br><br>    loss_function = nn.MSELoss()<br>    optimizer = torch.optim.Adam(lstm_model.parameters(), lr=<span class="hljs-number">1e-2</span>)<br><br>    max_epochs = <span class="hljs-number">10000</span><br>    <span class="hljs-keyword">for</span> epoch <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_epochs):<br>        output = lstm_model(train_x_tensor)<br>        loss = loss_function(output, train_y_tensor)<br><br>        loss.backward()<br>        optimizer.step()<br>        optimizer.zero_grad()<br><br>        <span class="hljs-keyword">if</span> loss.item() &lt; <span class="hljs-number">1e-4</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Epoch [&#123;&#125;/&#123;&#125;], Loss: &#123;:.5f&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(epoch + <span class="hljs-number">1</span>, max_epochs, loss.item()))<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;The loss value is reached&quot;</span>)<br>            <span class="hljs-keyword">break</span><br>        <span class="hljs-keyword">elif</span> (epoch + <span class="hljs-number">1</span>) % <span class="hljs-number">100</span> == <span class="hljs-number">0</span>:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;Epoch: [&#123;&#125;/&#123;&#125;], Loss:&#123;:.5f&#125;&#x27;</span>.<span class="hljs-built_in">format</span>(epoch + <span class="hljs-number">1</span>, max_epochs, loss.item()))<br><br>    <span class="hljs-comment"># prediction on training dataset</span><br>    predictive_y_for_training = lstm_model(train_x_tensor)<br>    predictive_y_for_training = predictive_y_for_training.view(-<span class="hljs-number">1</span>, OUTPUT_FEATURES_NUM).data.numpy()<br><br>    <span class="hljs-comment"># torch.save(lstm_model.state_dict(), &#x27;model_params.pkl&#x27;) # save model parameters to files</span><br><br>    <span class="hljs-comment"># ----------------- test -------------------</span><br>    <span class="hljs-comment"># lstm_model.load_state_dict(torch.load(&#x27;model_params.pkl&#x27;))  # load model parameters from files</span><br>    lstm_model = lstm_model.<span class="hljs-built_in">eval</span>()  <span class="hljs-comment"># switch to testing model</span><br><br>    <span class="hljs-comment"># prediction on test dataset</span><br>    test_x_tensor = test_x.reshape(-<span class="hljs-number">1</span>, <span class="hljs-number">5</span>,<br>                                   INPUT_FEATURES_NUM)  <span class="hljs-comment"># set batch size to 5, the same value with the training set</span><br>    test_x_tensor = torch.from_numpy(test_x_tensor)<br><br>    predictive_y_for_testing = lstm_model(test_x_tensor)<br>    predictive_y_for_testing = predictive_y_for_testing.view(-<span class="hljs-number">1</span>, OUTPUT_FEATURES_NUM).data.numpy()<br><br>    <span class="hljs-comment"># ----------------- plot -------------------</span><br>    plt.figure()<br>    plt.plot(t_for_training, train_x, <span class="hljs-string">&#x27;g&#x27;</span>, label=<span class="hljs-string">&#x27;sin_trn&#x27;</span>)<br>    plt.plot(t_for_training, train_y, <span class="hljs-string">&#x27;b&#x27;</span>, label=<span class="hljs-string">&#x27;ref_cos_trn&#x27;</span>)<br>    plt.plot(t_for_training, predictive_y_for_training, <span class="hljs-string">&#x27;y--&#x27;</span>, label=<span class="hljs-string">&#x27;pre_cos_trn&#x27;</span>)<br><br>    plt.plot(t_for_testing, test_x, <span class="hljs-string">&#x27;c&#x27;</span>, label=<span class="hljs-string">&#x27;sin_tst&#x27;</span>)<br>    plt.plot(t_for_testing, test_y, <span class="hljs-string">&#x27;k&#x27;</span>, label=<span class="hljs-string">&#x27;ref_cos_tst&#x27;</span>)<br>    plt.plot(t_for_testing, predictive_y_for_testing, <span class="hljs-string">&#x27;m--&#x27;</span>, label=<span class="hljs-string">&#x27;pre_cos_tst&#x27;</span>)<br><br>    plt.plot([t[train_data_len], t[train_data_len]], [-<span class="hljs-number">1.2</span>, <span class="hljs-number">4.0</span>], <span class="hljs-string">&#x27;r--&#x27;</span>, label=<span class="hljs-string">&#x27;separation line&#x27;</span>)  <span class="hljs-comment"># separation line</span><br><br>    plt.xlabel(<span class="hljs-string">&#x27;t&#x27;</span>)<br>    plt.ylabel(<span class="hljs-string">&#x27;sin(t) and cos(t)&#x27;</span>)<br>    plt.xlim(t[<span class="hljs-number">0</span>], t[-<span class="hljs-number">1</span>])<br>    plt.ylim(-<span class="hljs-number">1.2</span>, <span class="hljs-number">4</span>)<br>    plt.legend(loc=<span class="hljs-string">&#x27;upper right&#x27;</span>)<br>    plt.text(<span class="hljs-number">14</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&quot;train&quot;</span>, size=<span class="hljs-number">15</span>, alpha=<span class="hljs-number">1.0</span>)<br>    plt.text(<span class="hljs-number">20</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&quot;test&quot;</span>, size=<span class="hljs-number">15</span>, alpha=<span class="hljs-number">1.0</span>)<br><br>    plt.show()<br></code></pre></td></tr></table></figure>
+
+<h1 id="GRU（门控循环单元）"><a href="#GRU（门控循环单元）" class="headerlink" title="GRU（门控循环单元）"></a>GRU（门控循环单元）</h1><h2 id="计算过程-2"><a href="#计算过程-2" class="headerlink" title="计算过程"></a>计算过程</h2><p>​<img src="/assets/rnn/image-20240503161127-1i7ulhi.png" srcset="/img/loading.gif" lazyload alt="image">​</p>
+<p>$公式2.1：z&#x3D;\sigma(x_t W_x^{(z)}+h_{t-1} W_h^{(z)}+b^{(z)})$</p>
+<p>$公式2.2：r&#x3D;\sigma(x_t W_x^{(r)}+h_{t-1} W_h^{(r)}+b^{(r)})$</p>
+<p>‍</p>
+<p>$公式2.3：\tilde{h}&#x3D;\tanh (x_t W_x+(r \odot h_{t-1}) W_h+b)$</p>
+<p>$公式2.4：h_t&#x3D;(1-z) \odot h_{t-1}+z \odot \tilde{h}$</p>
+<p>没有记忆单元，只有一个隐藏状态h在时间上的传播</p>
+<p>𝑟(reset门)决定在多大程度上“忽略”过去的隐藏状态。根据公式2.3，如果𝑟是 0，则新的隐藏状态ℎ~仅取决于输入𝑥𝑡。也就是说，此时过去的隐藏状态将完全被忽略。</p>
+<p>𝑧(update门)是更新隐藏状态的门，它扮演了 LSTM 的 forget 门和input 门两个角色。公式2.4 的(1−𝑧)⊙ℎ𝑡−1部分充当 forget 门的功能，从过去的隐藏状态中删除应该被遗忘的信息。𝑧⊙ℎ~的部分充当 input 门的功能，对新增的信息进行加权。</p>
+<p>‍</p>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://zybuluo.com/hanbingtao/note/541458">零基础入门深度学习(5) - 循环神经网络</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" class="print-no-link">#深度学习</a>
+      
+        <a href="/tags/python/" class="print-no-link">#python</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>循环神经网络</div>
+      <div>http://example.com/2024/07/29/循环神经网络（RNN）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>著者</div>
+          <div>suhang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>作成日</div>
+          <div>2024年7月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>著作権</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/19/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E2%80%94%E2%80%94%E6%8E%92%E5%BA%8F/" title="数据结构——排序">
+                        <span class="hidden-mobile">数据结构——排序</span>
+                        <span class="visible-mobile">次の記事</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>見出し</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+  
+  
+
+
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">検索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">キーワード</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <span>Sure</span></a> <i class="iconfont icon-love"></i> <span>Space</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  
+      <script>
+        if (!window.MathJax) {
+          window.MathJax = {
+            tex    : {
+              inlineMath: { '[+]': [['$', '$']] }
+            },
+            loader : {
+              load: ['ui/lazy']
+            },
+            options: {
+              renderActions: {
+                insertedScript: [200, () => {
+                  document.querySelectorAll('mjx-container').forEach(node => {
+                    let target = node.parentNode;
+                    if (target.nodeName.toLowerCase() === 'li') {
+                      target.parentNode.classList.add('has-jax');
+                    }
+                  });
+                }, '', false]
+              }
+            }
+          };
+        } else {
+          MathJax.startup.document.state(0);
+          MathJax.texReset();
+          MathJax.typeset();
+          MathJax.typesetPromise();
+        }
+
+        Fluid.events.registerRefreshCallback(function() {
+          if ('MathJax' in window && MathJax.startup.document && typeof MathJax.startup.document.state === 'function') {
+            MathJax.startup.document.state(0);
+            MathJax.texReset();
+            MathJax.typeset();
+            MathJax.typesetPromise();
+          }
+        });
+      </script>
+    
+
+  <script  src="https://lib.baomitu.com/mathjax/3.2.2/es5/tex-mml-chtml.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">ブログは JavaScript を有効にすると最適に機能します</div>
+  </noscript>
+</body>
+</html>
