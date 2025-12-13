@@ -4,25 +4,26 @@
 <script src="/config.70e0ae244a2d84029803.js"></script>
 <!-- hexo injector head_begin end -->
 <meta charset="utf-8">
-<title>关于我 - SureSpace</title>
+<title>python语法进阶（一） - SureSpace</title>
 <base href="/">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<link rel="canonical" href="http://example.com/about/">
+<link rel="canonical" href="http://example.com/2024/05/10/python%E8%AF%AD%E6%B3%95%E8%BF%9B%E9%98%B6%EF%BC%88%E4%B8%80%EF%BC%89/">
 <link rel="icon" type="image/x-icon" href="/images%5Cfavicon%5Cfavicon.ico">
 
-<meta name="description" content="hello, nice to meet you! 目前大三在读，找工作ing,大佬有兴趣请联系，邮箱：3199455871@qq.com  求职简历 意向岗位：智能体开发 意向城市：成都 期望薪资：4k-10k 求职类型：实习  核心技能 智能体与大模型  熟练掌握 LangChain、LangGraph、Coze、MCP、N8N 等智能体框架，了解 MAS 架构 基于 Transformers">
+<meta name="description" content="本文基本介绍下在python中常用的装饰器、多线程、迭代器&#x2F;生成器、以及协程（Asyncio）。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="关于我">
-<meta property="og:url" content="http://example.com/about/index.html">
+<meta property="og:title" content="python语法进阶（一）">
+<meta property="og:url" content="http://example.com/2024/05/10/python%E8%AF%AD%E6%B3%95%E8%BF%9B%E9%98%B6%EF%BC%88%E4%B8%80%EF%BC%89/index.html">
 <meta property="og:site_name" content="SureSpace">
-<meta property="og:description" content="hello, nice to meet you! 目前大三在读，找工作ing,大佬有兴趣请联系，邮箱：3199455871@qq.com  求职简历 意向岗位：智能体开发 意向城市：成都 期望薪资：4k-10k 求职类型：实习  核心技能 智能体与大模型  熟练掌握 LangChain、LangGraph、Coze、MCP、N8N 等智能体框架，了解 MAS 架构 基于 Transformers">
+<meta property="og:description" content="本文基本介绍下在python中常用的装饰器、多线程、迭代器&#x2F;生成器、以及协程（Asyncio）。">
 <meta property="og:locale">
-<meta property="og:image" content="http://example.com/about/images/favicon/favicon.ico">
-<meta property="article:published_time" content="2025-12-09T13:50:34.388Z">
-<meta property="article:modified_time" content="2025-12-09T13:50:34.388Z">
+<meta property="og:image" content="http://example.com/2024/05/10/python%E8%AF%AD%E6%B3%95%E8%BF%9B%E9%98%B6%EF%BC%88%E4%B8%80%EF%BC%89/images/2024/05/10/pose.jpg">
+<meta property="article:published_time" content="2024-05-10T14:21:10.000Z">
+<meta property="article:modified_time" content="2025-12-13T14:45:59.514Z">
 <meta property="article:author" content="surespace">
+<meta property="article:tag" content="python">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/about/images/favicon/favicon.ico">
+<meta name="twitter:image" content="http://example.com/2024/05/10/python%E8%AF%AD%E6%B3%95%E8%BF%9B%E9%98%B6%EF%BC%88%E4%B8%80%EF%BC%89/images/2024/05/10/pose.jpg">
 
 
 <!-- hexo injector head_end start --><style is="theme">html{--inside-accent-color:#2a2b33;--inside-foreground-color:#363636;--inside-border-color:#e0e0e0;--inside-background:#f3f6f7;--inside-sidebar-background:#2a2b33;--inside-card-background:#fff;--inside-font-base:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-logo:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;--inside-font-menu:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-heading:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-label:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-code:SFMono-Regular,Consolas,'Liberation Mono',Menlo,Courier,monospace;--inside-font-print:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC';--inside-content-width:660px;--inside-highlight-00:#f8f8f8;--inside-highlight-01:#e8e8e8;--inside-highlight-02:#d8d8d8;--inside-highlight-03:#b8b8b8;--inside-highlight-04:#585858;--inside-highlight-05:#383838;--inside-highlight-06:#282828;--inside-highlight-07:#181818;--inside-highlight-08:#ab4642;--inside-highlight-09:#dc9656;--inside-highlight-0a:#f7ca88;--inside-highlight-0b:#a1b56c;--inside-highlight-0c:#86c1b9;--inside-highlight-0d:#7cafc2;--inside-highlight-0e:#ba8baf;--inside-highlight-0f:#a16946;--inside-card-color:#fff;--inside-accent-color-005:rgba(42,43,51,.05);--inside-accent-color-01:rgba(42,43,51,.1);--inside-accent-color-02:rgba(42,43,51,.2);--inside-accent-color-04:rgba(42,43,51,.4);--inside-accent-color-08:rgba(42,43,51,.8)}</style><script src="/theme.97aefb00.js"></script><link href="/styles.79f9d555e464cb1b669d.css" rel="stylesheet"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
