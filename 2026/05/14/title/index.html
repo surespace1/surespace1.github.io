@@ -4,27 +4,25 @@
 <script src="/config.03a1962420621f085519.js"></script>
 <!-- hexo injector head_begin end -->
 <meta charset="utf-8">
-<title>数据结构（python） - SureSpace</title>
+<title>title - SureSpace</title>
 <base href="/">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-<link rel="canonical" href="http://example.com/2024/02/16/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%88python%EF%BC%89/">
+<link rel="canonical" href="http://example.com/2026/05/14/title/">
 <link rel="icon" type="image/x-icon" href="/images%5Cfavicon%5Cfavicon.ico">
 
-<meta name="description" content="对数据结构的简单介绍，几大经典的排序，二叉树，堆、栈、队列等，以及对应实现的python代码。">
+<meta name="description" content="C语言 计算机的内存 　　‍  计算机的内存  　　1TB&#x3D;1024GB 　　1GB&#x3D;1024MB 　　1MB&#x3D;1024KB 　　1KB&#x3D;1024B（Byte字节） 　　1B&#x3D;8bit（比特） 　　‍  内存地址的定义  　　为了有效的管理和使用计算机的内存，把内存空间划分为一个个小的内存单元，每个内存但与的大小是1字节，为了能够方便访问到内存的每个单元，我们就给内存单元进行了编号，这些编号也就是">
 <meta property="og:type" content="website">
-<meta property="og:title" content="数据结构（python）">
-<meta property="og:url" content="http://example.com/2024/02/16/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%88python%EF%BC%89/index.html">
+<meta property="og:title" content="title">
+<meta property="og:url" content="http://example.com/2026/05/14/title/index.html">
 <meta property="og:site_name" content="SureSpace">
-<meta property="og:description" content="对数据结构的简单介绍，几大经典的排序，二叉树，堆、栈、队列等，以及对应实现的python代码。">
+<meta property="og:description" content="C语言 计算机的内存 　　‍  计算机的内存  　　1TB&#x3D;1024GB 　　1GB&#x3D;1024MB 　　1MB&#x3D;1024KB 　　1KB&#x3D;1024B（Byte字节） 　　1B&#x3D;8bit（比特） 　　‍  内存地址的定义  　　为了有效的管理和使用计算机的内存，把内存空间划分为一个个小的内存单元，每个内存但与的大小是1字节，为了能够方便访问到内存的每个单元，我们就给内存单元进行了编号，这些编号也就是">
 <meta property="og:locale">
-<meta property="og:image" content="http://example.com/2024/02/16/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%88python%EF%BC%89/images/2024/02/16/3EF5D6D07CECB3A63168D66522FFFBA6-20240217111109-q3bc7sv.jpg">
-<meta property="article:published_time" content="2024-02-16T10:02:39.000Z">
+<meta property="og:image" content="http://example.com/2026/05/14/title/images/favicon/favicon.ico">
+<meta property="article:published_time" content="2026-05-14T14:07:44.369Z">
 <meta property="article:modified_time" content="2026-05-14T14:07:44.369Z">
 <meta property="article:author" content="surespace">
-<meta property="article:tag" content="python">
-<meta property="article:tag" content="数据结构">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2024/02/16/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%EF%BC%88python%EF%BC%89/images/2024/02/16/3EF5D6D07CECB3A63168D66522FFFBA6-20240217111109-q3bc7sv.jpg">
+<meta name="twitter:image" content="http://example.com/2026/05/14/title/images/favicon/favicon.ico">
 
 
 <!-- hexo injector head_end start --><style is="theme">html{--inside-accent-color:#2a2b33;--inside-foreground-color:#363636;--inside-border-color:#e0e0e0;--inside-background:#f3f6f7;--inside-sidebar-background:#2a2b33;--inside-card-background:#fff;--inside-font-base:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-logo:-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;--inside-font-menu:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-heading:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-label:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Helvetica Neue',Helvetica,Arial,sans-serif;--inside-font-code:SFMono-Regular,Consolas,'Liberation Mono',Menlo,Courier,monospace;--inside-font-print:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC';--inside-content-width:660px;--inside-highlight-00:#f8f8f8;--inside-highlight-01:#e8e8e8;--inside-highlight-02:#d8d8d8;--inside-highlight-03:#b8b8b8;--inside-highlight-04:#585858;--inside-highlight-05:#383838;--inside-highlight-06:#282828;--inside-highlight-07:#181818;--inside-highlight-08:#ab4642;--inside-highlight-09:#dc9656;--inside-highlight-0a:#f7ca88;--inside-highlight-0b:#a1b56c;--inside-highlight-0c:#86c1b9;--inside-highlight-0d:#7cafc2;--inside-highlight-0e:#ba8baf;--inside-highlight-0f:#a16946;--inside-card-color:#fff;--inside-accent-color-005:rgba(42,43,51,.05);--inside-accent-color-01:rgba(42,43,51,.1);--inside-accent-color-02:rgba(42,43,51,.2);--inside-accent-color-04:rgba(42,43,51,.4);--inside-accent-color-08:rgba(42,43,51,.8)}</style><script src="/theme.97aefb00.js"></script><link href="/styles.79f9d555e464cb1b669d.css" rel="stylesheet"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
